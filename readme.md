@@ -10,7 +10,7 @@ The script displays the results of the changed network interface cards (NICs) an
 
 ```powershell
 $myAdapters = Get-NetworkAdaptersInfo
-$changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "MSFTVPN-Manual" -AdapterType Ppp -AddressFamily IPv4 -InterfaceMetric 1 
+$changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "My-VPNUserTunnel" -AdapterType Ppp -AddressFamily IPv4 -InterfaceMetric 1 
 $changedNICs | Format-Table -AutoSize
 $myAdapters | Format-Table -AutoSize
 ```

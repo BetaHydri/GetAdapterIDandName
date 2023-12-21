@@ -62,7 +62,7 @@ trap {
 if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     # Call the function and store the result in a variable
     $myAdapters = Get-NetworkAdaptersInfo
-    $changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "MSFTVPN-Manual" -AdapterType Ppp -AddressFamily IPv4 -InterfaceMetric 1 
+    $changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "VPN-UserTunnel" -AdapterType Ppp -AddressFamily IPv4 -InterfaceMetric 1 
     # Display the results
     $changedNICs | Format-Table -AutoSize
     $myAdapters | Format-Table -AutoSize
