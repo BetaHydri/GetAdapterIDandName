@@ -1,30 +1,37 @@
 # GetAdaptersIDsandNames.ps1
 
-This PowerShell script retrieves network adapter information and sets the interface metric for a specified adapter.
+This PowerShell script retrieves network adapter information and sets the interface metric for a specific adapter.
 
 ## Usage
 
-Run the script in a PowerShell session with administrative privileges. The script checks if the current user is an administrator before proceeding.
+The script must be run with administrator privileges. It calls the `Get-NetworkAdaptersInfo` function to retrieve network adapter information and stores the result in a variable. It then calls the `Set-MyInterfaceMetric` function to set the interface metric for a specific adapter.
+
+The script displays the results of the changed network interface cards (NICs) and the retrieved network adapter information.
 
 ```powershell
-.\GetAdaptersIDsandNames.ps1
+$myAdapters = Get-NetworkAdaptersInfo
+$changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "MSFTVPN-Manual" -AdapterType Ppp -AddressFamily IPv4 -InterfaceMetric 1 
+$changedNICs | Format-Table -AutoSize
+$myAdapters | Format-Table -AutoSize
 ```
 
-## Functions
-Get-NetworkAdaptersInfo: This function retrieves information about all network adapters on the system.
-
-Set-MyInterfaceMetric: This function sets the interface metric for a specified adapter.
-
-## Output
-The script outputs two tables:
-
-A table of adapters whose interface metric was changed. The table includes the adapter's name, description, ID, and operational status.
-
-A table of all network adapters, sorted by operational status. The table includes the adapter's type, name, description, ID, and operational status.
-
 ## Error Handling
-The script stops execution and throws an error if any command fails.
+The script has a trap block that catches any errors and stops the script execution. It writes a warning message with the error details.
 
+```powershell
+$ErrorActionPreference = "Stop"
+trap {
+    Write-Warning "Script failed: $_"
+    throw $_
+}
+```
 ## Requirements
-The script must be run with administrative privileges.
-The script is designed to work on Windows systems with PowerShell installed.
+The script requires the current user to have administrator privileges. If the script is run without administrator privileges, it will display a warning message.
+```powershell
+if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    # script execution
+}
+else {
+    Write-Warning "You are not running this script as an administrator."
+}
+```
