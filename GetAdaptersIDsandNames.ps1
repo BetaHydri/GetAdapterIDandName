@@ -1,13 +1,25 @@
-#begin region functions
+#region functions
 function Get-NetworkAdaptersInfo {
+    param(
+        [Paramter(Mandatory = $false)]
+        [switch]$ShowResults = $false
+    )
     # Import the .NET class for network information
-    $myAdapters = [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces() 
+    Begin {
+        $myAdapters = [System.Net.NetworkInformation.NetworkInterface]::GetAllNetworkInterfaces() 
+    }
 
-    # Select specific properties from the network interfaces and sort them by OperationalStatus
-    $myAdapters = $myAdapters | Select-Object NetworkInterfaceType, Name, Description, Id, OperationalStatus | Sort-Object OperationalStatus
-
+    Process {
+        # Select specific properties from the network interfaces and sort them by OperationalStatus
+        $myAdapters = $myAdapters | Select-Object NetworkInterfaceType, Name, Description, Id, OperationalStatus | Sort-Object OperationalStatus
+    }
     # Format the network interface objects as a table and return the result
-    return $myAdapters
+    End {
+        if ($ShowResults) {
+            $myAdapters | Format-Table -AutoSize
+        }
+        return $myAdapters
+    }
 }
 
 function Set-MyInterfaceMetric {
@@ -27,14 +39,13 @@ function Set-MyInterfaceMetric {
     )
     foreach ($Adapter in $Adapters) {
         if (($($Adapter.NetworkInterfaceType) -eq $AdapterType) -and ($($Adapter.Name) -eq $AdapterName)) {
-            $changes = Set-NetIPInterface -InterfaceAlias $Adapter.Name -InterfaceMetric $InterfaceMetric -AddressFamily IPv4 -PassThru
+            $changes = Set-NetIPInterface -InterfaceAlias $Adapter.Name -InterfaceMetric $InterfaceMetric -AddressFamily $AddressFamily -PassThru
             $changedAdapters += $changes
         }
     }
     return $changedAdapters
 }
-
-# end region functions
+# endregion functions
 
 
 # Main script
@@ -53,9 +64,12 @@ if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]:
     $myAdapters = Get-NetworkAdaptersInfo
     $changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "MSFTVPN-Manual" -AdapterType Ppp -AddressFamily IPv4 -InterfaceMetric 1
     # Display changed Adapters as the result
+    Write-Information "Changed Adapters:" -InformationAction Continue
     $changedNICs | Format-Table -AutoSize
     # Display all Adapters IDs and Names as the result
+    Write-Information "All Adapters ID and other properties:" -InformationAction Continue
     $myAdapters | Select-Object NetworkInterfaceType, Name, Description, Id, OperationalStatus | Sort-Object OperationalStatus | Format-Table -AutoSize
-} else {
-    Write-warning "You are not running this script as an administrator."
+}
+else {
+    Write-Warning "You are not running this script as an administrator."
 }
