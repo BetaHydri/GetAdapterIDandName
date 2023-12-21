@@ -1,4 +1,5 @@
-#region functions
+
+#region My Functions
 function Get-NetworkAdaptersInfo {
     # Import the .NET class for network information
     Begin {
@@ -45,11 +46,9 @@ function Set-MyInterfaceMetric {
         return $changedAdapters
     }
 }
+#endregion My Functions
 
-# endregion functions
-
-
-# Main script
+#region Main script
 
 # Set error handling
 $ErrorActionPreference = "Stop"
@@ -70,3 +69,5 @@ if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]:
 else {
     Write-Warning "You are not running this script as an administrator."
 }
+#endregion Main script
+```
