@@ -1,6 +1,6 @@
 # GetAdaptersIDsandNames.ps1
 
-This PowerShell script retrieves network adapter information and sets the interface metric for a specific adapter.
+This PowerShell script retrieves network adapter information and sets the interface metric for a specific adapter. E.g. this could be useful to find the PPP VPN adapter after the successful RASClient connect event 20224 and change afterwards the metric of this PPP Interface. For further information how routes are been priorized and calculated read: [Metric (microsoft-windows-tcpip-interfaces-interface-ipv4settings-metric)](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-tcpip-interfaces-interface-ipv4settings-metric)
 
 ## Usage
 
