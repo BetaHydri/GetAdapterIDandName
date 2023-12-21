@@ -18,15 +18,15 @@ function Set-MyInterfaceMetric {
         [string]$AdapterName,
         [Parameter(Mandatory = $false)]
         [ValidateSet("IPv4", "IPv6")]
-        [string]$AdapterType = "IPv4",
+        [string]$AddressFamily = "IPv4",
         [Parameter(Mandatory = $false)]
-        [ValidateSet("PPP", "Ethernet", "Wireless80211", "Tunnel", "Loopback", "Tunnel")]
-        [string]$AdapterType = "PPP",
+        [ValidateSet("Ppp", "Ethernet", "Wireless80211", "Tunnel", "Loopback", "Tunnel")]
+        [string]$AdapterType = "Ppp",
         [Parameter(Mandatory = $false)]
         [int]$InterfaceMetric = 1
     )
     foreach ($Adapter in $Adapters) {
-        if ($Adapter.NetworkInterfaceType -eq $Adapterype -and $Adapter.Name -eq $AdapterName) {
+        if (($($Adapter.NetworkInterfaceType) -eq $AdapterType) -and ($($Adapter.Name) -eq $AdapterName)) {
             $changes = Set-NetIPInterface -InterfaceAlias $Adapter.Name -InterfaceMetric $InterfaceMetric -AddressFamily IPv4 -PassThru
             $changedAdapters += $changes
         }
@@ -39,8 +39,23 @@ function Set-MyInterfaceMetric {
 
 # Main script
 
-# Call the function and store the result in a variable
-$myAdapters = Get-NetworkAdaptersInfo
-$changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "MSFTVPN-Manual" -AdapterType "PPP" -InterfaceMetric 1
-$changedNICs | Format-Table -AutoSize
-$myAdapters | Select-Object NetworkInterfaceType, Name, Description, Id, OperationalStatus | Sort-Object OperationalStatus | Format-Table -AutoSize
+# Set error handling
+$ErrorActionPreference = "Stop"
+trap {
+    Write-Warning "Script failed: $_"
+    throw $_
+}
+
+# Check if the current user is an administrator
+if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Host -ForegroundColor green "You are running this script as an administrator."
+    # Call the function and store the result in a variable
+    $myAdapters = Get-NetworkAdaptersInfo
+    $changedNICs = Set-MyInterfaceMetric -Adapters $myAdapters -AdapterName "MSFTVPN-Manual" -AdapterType Ppp -AddressFamily IPv4 -InterfaceMetric 1
+    # Display changed Adapters as the result
+    $changedNICs | Format-Table -AutoSize
+    # Display all Adapters IDs and Names as the result
+    $myAdapters | Select-Object NetworkInterfaceType, Name, Description, Id, OperationalStatus | Sort-Object OperationalStatus | Format-Table -AutoSize
+} else {
+    Write-warning "You are not running this script as an administrator."
+}
