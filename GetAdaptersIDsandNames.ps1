@@ -70,4 +70,3 @@ else {
     Write-Warning "You are not running this script as an administrator."
 }
 #endregion Main script
-```
